@@ -1,66 +1,102 @@
+.. _odoo_sh_upgrade:
 
 =======
 Odoo.sh
 =======
 
-Test upgrade request
-====================
+.. _odoo_sh_upgrade/overview:
 
-Download a dump of your database (from the :ref:`Builds view
-<odoosh-gettingstarted-builds-download-dump>`), choose the **exact copy** and **without filestore**
-options. Upload the .sql.gz dump on https://upgrade.odoo.com/upload and select the testing purpose.
-Once it's processed, you'll get a dump of the database in return.
+Overview
+========
 
-.. important::
-   To have the most up-to-date test version of your database, create a backup of your production
-   database just before creating your request. Upload it in your staging branch, select **Exact
-   dump** and **Without filestore**, and then click *start*.
+Odoo.sh is integrated with the upgrade platform. A testing phase can be done on a staging branch
+allowing to upgrade the latest backup.
+The upgrade menu is available in the branches menu for valid projects with a valid production build.
 
-Test your upgraded database
-===========================
+.. image:: process/odoo_sh_menu.png
+   :align: center
+   :class: w-50
+   :alt: Click on the upgrade menu
 
-At the beginning of your upgrade project, make sure that you create a new staging branch for testing
-purposes by forking your main branch.
+The suggested upgrade steps on Odoo.sh are:
 
-Once the staging build is complete (it doesn't matter if it failed due to the version
-incompatibility), import your upgraded dump in the *Backups* tab of the branch.
+* On a development branch: update your custom code to keep them compatible with the new version and thoroughly test it.
+* Switch that branch to staging, upgrade the last daily production backup and test it. Add upgrade scripts if necessary.
+* Trigger the production upgrade and sit tight.
 
-.. note::
-   The platform automatically detects the version of the dump and changes the version of Odoo's
-   source code to the corresponding version of the build.
+.. _odoo_sh_upgrade/custom-modules:
 
-Test the upgraded database and make sure everything runs as it's supposed to.
+Custom modules
+==============
 
-Upgrade your production database
-================================
-
-Once you've tested everything and you're satisfied, start the process over to get an up-to-date
-upgraded dump:
-
-* Make a new dump of your production database (as described in step 1)
-* Upload it on upgrade.odoo.com and select the Production purpose
-* Receive the newly upgraded dump and import it in your production branch. The build might get
-  marked as failed because the platform will run it with the upgraded databases' Odoo version
-  together with the old custom code.
-* Merge or commit the upgraded custom code in the production branch
-
-If anything goes wrong, remember you can restore a backup. The platform will always make one before
-you make any Odoo.sh operation on the production database. If the restored backup comes from a
-previous version, the platform will detect it and change the project's Odoo version back if it needs
-to.
-
-Custom modules (if applicable)
-==============================
-
-The upgrade of a database that contains custom modules is a 2 step process.
-
-#. The standard upgrade is done when your upgrade request is completed.
-#. Your custom modules also need to be upgraded to keep them compatible with the new version.
+Your custom modules also need to be upgraded to keep them compatible with the new version.
+Change the odoo version in the development branch settings to the new version.
+Update your code to match the new version.
 
 Depending on your contract, the upgrade of your custom modules can be done
 - by yourself
 - by your Partner
-- by Odoo (if you hold a subscription to 'Maintenance of Customizations')
+- by Odoo (if you hold a subscription including 'Maintenance of Customizations')
 
-.. seealso::
-   - :ref:`upgrade/sla`
+.. _odoo_sh_upgrade/testing-phase:
+
+Testing Phase (staging branch)
+==============================
+
+Create a staging branch that will run the upgraded database.
+Either make sure your production branch's code is
+compatible between the two Odoo versions and fork your production branch,
+or make a new staging branch containing
+the upgraded code.
+
+.. image:: process/odoo_sh_staging.png
+   :class: w-50
+   :align: center
+
+This phase allows to upgrade a backup. When the upgrade starts, the **latest production
+daily automatic backup** will be picked.
+The backup will be sent to the upgrade platform to start the upgrade process.
+In this phase, the upgrade process will be a test upgrade.
+Its progress will be available in the upgrade menu of the branch on Odoo.sh.
+
+
+When the upgraded backup is ready on the upgrade platform, it will be downloaded on Odoo.sh.
+The branch will be in a special mode.
+Each time a **commit is pushed** on the branch, a **restore** of the upgraded backup will occur,
+and an **update of all the custom modules** will be happen.
+Allowing you to quickly iterate on your custom modules upgrade scripts.
+The upgrade.log log file within your newly upgraded staging build will contain the whole process.
+
+Test the upgraded database and make sure everything runs as it's supposed to.
+Once you are satisfied wth the results, close the upgrade process.
+
+The upgrade mode will be automatically closed after 30 days.
+
+Production
+==========
+
+Once you've tested everything and you're satisfied,
+start the process on the production branch.
+
+.. image:: process/odoo_sh_prod.png
+   :class: w-50
+   :align: center
+
+The actual process will be **triggered as soon as you push a new commit** in your branch.
+Make sure you are pushing code that is compatible with the new version.
+For example by merging the code from your upgraded staging branch.
+
+The progress of the upgrade will be available in the upgrade menu of your production branch.
+
+.. image:: process/odoo_sh_progress.png
+   :class: w-75
+   :align: center
+
+Your database will be unavailable throughout the process.
+
+If anything goes wrong, the platform will automatically revert the upgrade same as for an update.
+The platform will always make one before you make any
+Odoo.sh operation on the production database. If the restored backup comes from a previous version, the platform will
+detect it and change the project's Odoo version back if it needs to.
+The update of your custom modules need to be successfull to go through with the full upgrade process,
+make sure the state of your staging upgrade is successfull before trying on production.
