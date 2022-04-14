@@ -58,6 +58,8 @@ Click on **Save** when you are done.
 .. image:: how_it_works/works05.png
    :align: center
 
+.. _how-it-works/live-currency-rate:
+
 Live Currency Rate
 ------------------
 

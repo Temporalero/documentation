@@ -214,6 +214,41 @@ the payment acquirer available to all countries.
 
 .. _payment_acquirers/journal:
 
+Restraint Partners On
+*********************
+
+Restrict which users can use this acquirer. Leave this field blank to make the acquirer available
+to all users.
+
+.. image:: payment_acquirers/unedited-domain.png
+   :align: center
+   :alt: Edit the domain to restraint users's access to acquirers.
+
+Restriction on users works by creating a domain.
+To allow the acquirer to only the users that they job position involves sales add a filter.
+
+.. image:: payment_acquirers/editing-domain.png
+   :align: center
+
+Maximal Amount
+**************
+
+This field restrict the maximal amount that can be paid with the selected acquirer. Leave as
+**0.00** to ignore a maximal amount.
+
+.. note::
+   The maximal amount defined is in the currency of the company that setup the acquirer.
+   In a multi currency environment the amount of a transaction will be first converted to
+   the currency of the company that setup the acquirer before checking that such an
+   amount is allowed.
+   Note that the conversion rate used will be latest available on the database. Rates are not
+   updated by default, you should configure you database to fetch conversion rates frequently,
+   see :ref:`how-it-works/live-currency-rate`.
+
+.. note::
+   This feature will purposely not work with the Donation and eCommerce's payment pages.
+
+
 Payment journal
 ***************
 
