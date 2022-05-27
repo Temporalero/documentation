@@ -5,84 +5,115 @@ Ogone
 `Ogone <https://www.ingenico.com/>`_, also known as **Ingenico Payment Services** is a France-based
 company that provides the technology involved in secure electronic transactions.
 
-Configuration on Odoo
-=====================
+Configuration
+=============
 
+.. note::
+   - For more extensive documentation, you can refer to Ogone's `own documentation
+     <https://epayments-support.ingenico.com/en/get-started/>`_.
 .. seealso::
    - :ref:`payment_acquirers/add_new`
 
-Credentials tab
----------------
+Settings in Ogone
+-----------------
 
-Odoo needs your **API Credentials** to connect with your Ogone account, which comprise:
+Create an API user
+~~~~~~~~~~~~~~~~~~
 
-- **PSPID**: The ID solely used to identify the account with Ogone. You chose it when you opened
-  your account.
-- :ref:`API User ID <ogone/api_user>`: The ID solely used to identify the user with Ogone.
-- :ref:`API User Password <ogone/api_user>`: Value used to identify the user with Ogone.
-- :ref:`SHA Key IN <ogone/sha_key_in>`: Key used in the signature Odoo send to Ogone.
-- :ref:`SHA Key OUT <ogone/sha_key_out>`: Key used in the signature Ogone send to Odoo.
+Log into your Ogone account and head to the :guilabel:`Configuration` tab.
 
-You can copy your credentials from your Ogone account, and paste them in the related fields under
-the **Credentials** tab.
+You need to create an **API user** that will be used to create transactions from Odoo. While you can
+use your main account to do so, using an **API user** ensures that if the credentials used in Odoo
+are leaked, no access to your Ogone configuration will be possible. Additionally, passwords for
+**API users** do not need to be updated regularly, unlike normal users.
 
-.. _ogone/api_user:
+To create an **API user**, go to :menuselection:`Configuration --> Users` and click on **New User**.
+The following fields must be configured:
 
-API User ID and Password
-~~~~~~~~~~~~~~~~~~~~~~~~
+- **UserID:** you can choose anything you want, the convention is to name it *OOAPI*
+- **User's Name, E-mail and Timezone:** you can enter the information you want
+- **Profile:** should be set to *Admin*
+- **Special user for API:** should be checked
 
-If you already created a user and have both its ID and password, just copy them. You can also
-generate a new password from :menuselection:`Configuration --> Users --> Your chosen user --> change
-password`.
+Upon creation of the user, you will be required to generate a password. Save the password and
+**UserID**, as they will be required later on during the setup.
 
-If you don't have a user, create one by going to :menuselection:`Configuration --> Users -->
-New User`. Set your **User ID** to get your **password** when you save your new user.
+.. tip::
+   - Use a password manager to generate a strong password and store it more easily.
 
-.. image:: ogone/ogone_new_user.png
-   :align: center
-   :alt: Get your password when you save the new user.
+Set up Ogone for Odoo
+~~~~~~~~~~~~~~~~~~~~~
 
-.. _ogone/sha_key_in:
+Ogone must now be configured to accept payments from Odoo. Head to :menuselection:`Configuration -->
+Technical Information --> Global Security Parameters`, select **SHA-1** as **Hash Algorithm** and
+**UTF-8** as **character encoding**. Then, go to the **Data and Origin Information** tab of the same
+page and leave the URL field of the **e-Commerce and Alias Gateway** section blank.
 
-SHA Key IN
-~~~~~~~~~~
-
-In order to retrieve the SHA Key IN, log into your ogone account, go to
-:menuselection:`Configuration --> Technical Information --> Data and origin verification -->
-Checks for e-Commerce & Alias Gateway`, and retrieve **SHA Key IN**.
-
-.. _ogone/sha_key_out:
-
-SHA Key OUT
-~~~~~~~~~~~
-
-In order to retrieve the SHA Key OUT, log into your ogone account, go to
-:menuselection:`Configuration --> Technical Information --> Transaction feedback --> All transaction
-submission modes`, and get or generate your **API Key** and **Client Key**. Be careful to copy your
-API key as you'll not be allowed to get it later without generating a new one.
+You are now required to generate a **SHA-IN** passphrase. **SHA-IN** and **SHA-OUT** passphrases are
+used to digitally sign the transaction requests and responses between Odoo and Ogone. By using these
+secret passphrases and the **SHA-1** algorithm, both systems can ensure that the information they
+receive from the other was not altered or tampered with.
 
 .. important::
-   If you are trying Ogone as a test, with the Test Account, change the **State** to *Test Mode*. We
-   recommend doing this on a test Odoo database, rather than on your main database.
+   - If you need to use another algorithm, such as **SHA-256** or **SHA-512**, within Odoo, enable
+     **Debug Mode** and go to :menuselection:`General Settings --> Technical -->System Parameters`.
+     From here, search for **payment_ogone.hash.function** and change the value line to the desired
+     algorithm (**SHA-256** or **SHA-512**).
 
-Configuration on Ogone
-======================
+Your **SHA-IN** and **SHA-OUT** passphrases should be different, and between 16 and 32 characters
+long. Make sure to use the same **SHA-IN** and **SHA-OUT** passphrases throughout the entire Ogone
+configuration, as Odoo only allows a single **SHA-IN** and single **SHA-OUT** passphrase. In the
+**DirectLink and Batch** section of the screen, add the same **SHA-IN** passphrase as the previous
+field. You can leave the IP address field blank.
 
-Now that Odoo can communicate with Ogone, we need to make sure that Ogone can send information to
-your database.
+When done, head to :menuselection:`Configuration --> Technical Information --> Transaction Feedback`
+and check the following options:
 
-To do so, log into your Ogone account and go to :menuselection:`Configuration --> Technical
-Information --> Transaction feedback --> Direct HTTP server-to-server request`.
+- **I would like to receive transaction feedback parameters on the redirection URLs:** should be
+  checked
+- **Direct HTTP server-to-server request:** should to be set to *Online*
+- Both **URL** fields should contain the same following URL:
+  *https://<your-odoo-instance-url>/payment/ogone/accept*
+- **Request Method:** should be set to *Post*
+- **Dynamic eCommerce Parameters** should contain contain the following values: *ALIAS*, *AMOUNT*,
+  *CARDNO*, *CN*, *CURRENCY*, *IP*, *NCERROR*, *ORDERID*, *PAYID*, *PM*, *STATUS*, *TRXDATE*. Other
+  parameters can be included (if you have another integration with Ogone that requires them), but
+  are not advised.
+- The **URL** fields for **HTTP redirection in the browser** can be left empty, as Odoo will specify
+  these URLs for every transaction request.
+- In the **All transaction submission modes** section, fill in **SHA-OUT** passphrase and disable
+  **HTTP request for status change**.
 
-Then, fill the form with the following data:
+.. note::
+   - If you use tokenization (allowing users to save their cards), go to
+     :menuselection:`Configuration --> Alias` and set up the tokenization process according to your
+     needs.
 
-- In the **Timing of the request**, select *Online but switch to a deferred request when the online
-  requests fail*.
-- | Enter your Odoo databases URL in both **URLs** followed by ``/payment/ogone/return``.
-  | For example: ``https://yourcompany.odoo.com/payment/ogone/return``
-- Select *POST* for the **Request Method**.
+.. important::
+   - If you wish to run tests with Ogone, change the **State** of the Test Account to *Test Mode*.
+     We recommend doing this on an Odoo test database, rather than on your main database.
 
-Save, and you are ready to go!
+Settings in Odoo
+----------------
 
-.. seealso::
-   - :doc:`../payment_acquirers`
+Credentials
+~~~~~~~~~~~
+
+To set up Ogone in Odoo, head to :menuselection:`Accounting --> Configuration --> Payment Acquirers`
+or :menuselection:`Website --> Configuration --> Payment Acquirers` and open the Ogone acquirer. In
+the :guilabel:`Credentials` tab, enter the following information:
+
+- **PSPID:** The **PSPID** of your Ogone account
+- **API User ID:** Your **API user**'s ID (e.g. *OOAPI* if used conventionally)
+- **API User Password:** The password of the **API user**
+- **SHA Key IN/OUT:** The **SHA-IN** and **SHA-OUT** passphrases set in the backend of Ogone
+
+Optional configuration
+~~~~~~~~~~~~~~~~~~~~~~
+
+Under the :guilabel:`Configuration` tab, you can check the option **Allow Saving Payment Methods**.
+This option allows a customer to save their payment's details for future purchases, but *only* works
+if you have configured the tokenization under :menuselection:`Configuration --> Alias` in Ogone's
+backend.
+
+Your Ogone account is now ready to be used with Odoo!
