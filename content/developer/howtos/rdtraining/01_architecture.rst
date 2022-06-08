@@ -7,33 +7,35 @@ Chapter 1: Architecture Overview
 Multitier application
 =====================
 
-Odoo follows a `multitier architecture`_, meaning that the presentation, the business
-logic and the data storage are separated. More specifically, it uses a three-tier architecture
-(image from Wikipedia):
+Odoo sigue una `arquitectura multinivel`_, lo que significa que la presentación, el negocio
+la lógica y el almacenamiento de datos están separados. Más específicamente, 
+utiliza una arquitectura de tres niveles
+(imagen de Wikipedia):
 
 .. image:: 01_architecture/three_tier.svg
     :align: center
     :alt: Three-tier architecture
 
-The presentation tier is a combination of HTML5, JavaScript and CSS. The logic tier is exclusively
-written in Python, while the data tier only supports PostgreSQL as an RDBMS.
+El nivel de presentación es una combinación de HTML5, JavaScript y CSS. 
+El nivel lógico es exclusivamente escrito en Python, mientras que el 
+nivel de datos solo admite PostgreSQL como RDBMS.
 
-Depending on the scope of your module, Odoo development can be done in any of these tiers.
-Therefore, before going any further, it may be a good idea to refresh your memory if you don't have
-an intermediate level in these topics.
+Según el alcance de su módulo, el desarrollo de Odoo se puede realizar en cualquiera de estos niveles.
+Por eso, antes de seguir adelante, puede ser una buena idea `refrescar`_ la memoria si no tienes
+un nivel intermedio en estos temas.
 
-In order to go through this tutorial, you will need a very basic knowledge of HTML and an intermediate
-level of Python. Advanced topics will require more knowledge in the other subjects. There are
-plenty of tutorials freely accessible, so we cannot recommend one over another since it depends
-on your background.
+Para realizar este tutorial, necesitará un conocimiento muy básico de HTML y un nivel intermedio.
+nivel de Python. Los temas avanzados requerirán más conocimiento en las otras materias. Existen
+muchos tutoriales de libre acceso, por lo que no podemos recomendar uno sobre otro ya que depende
+en tu fondo.
 
-For reference this is the official `Python tutorial`_.
+Como referencia, este es el `Tutorial de Python`_ oficial.
 
 .. note::
-  Since version 15.0, Odoo is actively transitioning to using its own in-house developed `OWL
-  framework <https://odoo.github.io/owl/>`_ as part of its presentation tier. The legacy JavaScript
-  framework is still supported but will be deprecated over time. This will be discussed further in
-  advanced topics.
+Desde la versión 15.0, Odoo está haciendo una transición activa para usar su propio OWL desarrollado internamente.
+framework <https://odoo.github.io/owl/>`_ como parte de su nivel de presentación. El JavaScript heredado
+framework todavía es compatible, pero quedará obsoleto con el tiempo. 
+Esto se discutirá más adelante en temas avanzados.
 
 Odoo modules
 ============
