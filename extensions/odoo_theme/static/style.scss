@@ -352,17 +352,23 @@ header.o_main_header {
     aside.o_page_toc {
         display: none;
         @include font-size($font-size-secondary);
-        @include media-breakpoint-up(xl) {
-            display: block;
+        &:not(.o_in_nav_toc) {
+            @include media-breakpoint-up(xl) {
+                display: block;
+                top: $o-header-height;
+                right: 0;
+                padding: $padding-l $padding-s $padding-l 0;
+                overflow-y: auto;
+            }
             position: -webkit-sticky;
             position: sticky;
-            top: $o-header-height;
-            right: 0;
             width: $o-on-page-width;
             height: 100%;
             max-height: calc(100vh - #{$o-header-height});
-            padding: $padding-l $padding-s $padding-l 0;
-            overflow-y: auto;
+        }
+        &.o_in_nav_toc {
+            display: block;
+            width: $o-side-nav-width;
         }
 
         h3 {
@@ -1064,7 +1070,7 @@ header.o_main_header {
         > div[class^="highlight-"]{
             border: 0 !important;
         }
-        
+
         > *:last-child {
             margin-bottom: 0 !important;
         }
